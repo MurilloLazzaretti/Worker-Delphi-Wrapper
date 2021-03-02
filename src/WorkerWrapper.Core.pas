@@ -3,7 +3,7 @@ unit WorkerWrapper.Core;
 interface
 
 uses
-  ZapMQ.Wrapper, ZapMQ.Message.JSON, JSON;
+  ZapMQ.Wrapper, ZapMQ.Message.JSON, JSON, ZapMQ.Handler;
 
 type
   TWorkerWrapper = class
@@ -25,13 +25,13 @@ type
 implementation
 
 uses
-  Windows, System.SysUtils;
+  Windows, System.SysUtils, ZapMQ.Queue;
 
 { TWorkerWrapper }
 
 procedure TWorkerWrapper.BindQueue;
 begin
-  FZapMQWrapper.Bind(FProcessID.ToString, QueueHandler);
+  FZapMQWrapper.Bind(FProcessID.ToString, QueueHandler, TZapMQQueuePriority.mqpLow)
 end;
 
 constructor TWorkerWrapper.Create(const pHostZapMQ: string; const pPortZapMQ : integer);
@@ -51,7 +51,7 @@ function TWorkerWrapper.QueueHandler(pMessage: TZapJSONMessage;
   var pProcessing: boolean): TJSONObject;
 begin
   Result := TJSONObject.Create;
-  Result.AddPair('ProcessId', FProcessID.ToString);
+  Result.AddPair('ProcessId', FProcessId.ToString);
   pProcessing := False;
 end;
 

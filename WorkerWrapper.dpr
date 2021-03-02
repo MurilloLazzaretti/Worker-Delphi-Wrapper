@@ -6,6 +6,9 @@ program WorkerWrapper;
 
 uses
   System.SysUtils,
+  ZapMQ.Message.JSON,
+  JSON,
+  Windows,
   WorkerWrapper.Core in 'src\WorkerWrapper.Core.pas';
 
 begin

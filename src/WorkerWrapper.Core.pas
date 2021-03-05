@@ -10,12 +10,20 @@ type
   private
     FZapMQWrapper : TZapMQWrapper;
     FProcessID : Cardinal;
-    procedure BindQueue;
-    function QueueHandler(pMessage: TZapJSONMessage; var pProcessing: boolean): TJSONObject;
+    FKeepAliveHandler: TZapMQHanlder;
+    FSafeStopHandler: TZapMQHanlder;
+    procedure BindKeepAliveQueue;
+    procedure BindSafeStopQueue;
+    procedure SetKeepAliveHandler(const Value: TZapMQHanlder);
+    procedure SetSafeStopHandler(const Value: TZapMQHanlder);
   protected
-    constructor Create(const pHostZapMQ : string; const pPortZapMQ : integer); overload;
+    constructor Create(const pHostZapMQ : string; const pPortZapMQ : integer;
+      const pKeepAliveHandler : TZapMQHanlder; const pSafeStopHandler : TZapMQHanlder); overload;
   public
-    class procedure Start(const pHostZapMQ : string; const pPortZapMQ : integer);
+    property KeepAliveHandler : TZapMQHanlder read FKeepAliveHandler write SetKeepAliveHandler;
+    property SafeStopHandler : TZapMQHanlder read FSafeStopHandler write SetSafeStopHandler;
+    class procedure Start(const pHostZapMQ : string; const pPortZapMQ : integer;
+      const pKeepAliveHandler : TZapMQHanlder; const pSafeStopHandler : TZapMQHanlder);
     class procedure Stop;
     destructor Destroy; override;
   end;
@@ -25,40 +33,54 @@ type
 implementation
 
 uses
-  Windows, System.SysUtils, ZapMQ.Queue;
+  Windows, System.SysUtils, ZapMQ.Queue, Vcl.Forms;
 
 { TWorkerWrapper }
 
-procedure TWorkerWrapper.BindQueue;
+procedure TWorkerWrapper.BindKeepAliveQueue;
 begin
-  FZapMQWrapper.Bind(FProcessID.ToString, QueueHandler, TZapMQQueuePriority.mqpLow)
+  FZapMQWrapper.Bind(FProcessID.ToString, KeepAliveHandler, TZapMQQueuePriority.mqpLow)
 end;
 
-constructor TWorkerWrapper.Create(const pHostZapMQ: string; const pPortZapMQ : integer);
+procedure TWorkerWrapper.BindSafeStopQueue;
+begin
+  FZapMQWrapper.Bind(FProcessID.ToString + 'SS', SafeStopHandler, TZapMQQueuePriority.mqpLow)
+end;
+
+constructor TWorkerWrapper.Create(const pHostZapMQ: string; const pPortZapMQ : integer;
+  const pKeepAliveHandler : TZapMQHanlder; const pSafeStopHandler : TZapMQHanlder);
 begin
   FZapMQWrapper := TZapMQWrapper.Create(pHostZapMQ, pPortZapMQ);
   FProcessID := GetCurrentProcessId;
-  BindQueue;
+  FKeepAliveHandler := pKeepAliveHandler;
+  FSafeStopHandler := pSafeStopHandler;
+  BindKeepAliveQueue;
+  BindSafeStopQueue;
 end;
 
 destructor TWorkerWrapper.Destroy;
 begin
+  FZapMQWrapper.SafeStop;
   FZapMQWrapper.Free;
   inherited;
 end;
 
-function TWorkerWrapper.QueueHandler(pMessage: TZapJSONMessage;
-  var pProcessing: boolean): TJSONObject;
+procedure TWorkerWrapper.SetKeepAliveHandler(const Value: TZapMQHanlder);
 begin
-  Result := TJSONObject.Create;
-  Result.AddPair('ProcessId', FProcessId.ToString);
-  pProcessing := False;
+  FKeepAliveHandler := Value;
 end;
 
-class procedure TWorkerWrapper.Start(const pHostZapMQ : string; const pPortZapMQ : integer);
+procedure TWorkerWrapper.SetSafeStopHandler(const Value: TZapMQHanlder);
+begin
+  FSafeStopHandler := Value;
+end;
+
+class procedure TWorkerWrapper.Start(const pHostZapMQ : string; const pPortZapMQ : integer;
+  const pKeepAliveHandler : TZapMQHanlder; const pSafeStopHandler : TZapMQHanlder);
 begin
   if not Assigned(WorkerWrapper) then
-    WorkerWrapper := TWorkerWrapper.Create(pHostZapMQ, pPortZapMQ);
+    WorkerWrapper := TWorkerWrapper.Create(pHostZapMQ, pPortZapMQ,
+      pKeepAliveHandler, pSafeStopHandler);
 end;
 
 class procedure TWorkerWrapper.Stop;

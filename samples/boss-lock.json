@@ -1,11 +1,11 @@
 {
 	"hash": "d41d8cd98f00b204e9800998ecf8427e",
-	"updated": "2021-02-23T17:44:04.400437-03:00",
+	"updated": "2021-03-03T12:48:46.9270579-03:00",
 	"installedModules": {
 		"https://github.com/murillolazzaretti/zapmq-delphi-wrapper": {
 			"name": "zapmq-delphi-wrapper",
 			"version": "v1.1.0",
-			"hash": "f2546177083bf6b0c7d8593e3fa33fb7",
+			"hash": "3231a27dfeb0274a9af88f7a67d53088",
 			"artifacts": {},
 			"failed": false,
 			"changed": false

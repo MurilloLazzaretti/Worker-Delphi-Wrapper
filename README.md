@@ -14,7 +14,7 @@ $ boss install https://github.com/MurilloLazzaretti/Worker-Delphi-Wrapper.git
 You need to start the Wrapper and provide the IP and Port of the ZapMQ service and the Handler for KeepAlive and for SafeStop.
 
 ```delphi
-uses WorkerWrapper.Core,;
+uses WorkerWrapper.Core;
 
 begin  
   TWorkerWrapper.Start('localhost', 5679, KeepAliveHandler, SafeStopHandler);
@@ -53,7 +53,7 @@ Implement the Keep Alive handler in your main thread, this will prove if your ap
 
 🔐 _Safe Stop_
 
-This handler will be raised in your app when Worker Control needs to close the app safely. implement this as you want but dont forget to make sure that your app will be closed. After this, Worker Control will not monitore this instace any more.
+This handler will be raised in your app when Worker Control needs to close the app safely. Implement this as you want but dont forget to make sure that your app will be closed. After this, Worker Control will not monitore this instance any more.
 
 ```delphi
 uses

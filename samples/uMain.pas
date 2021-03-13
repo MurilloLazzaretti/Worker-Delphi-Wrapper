@@ -62,18 +62,21 @@ begin
   end
   else
   begin
+    TWorkerWrapper.Trace('KEEP ALIVE RECIVED');
     Memo1.Lines.Add('***** KEEP ALIVE RECIVED *****');
     Sleep(StrToInt(Edit1.Text));
     Result := TJSONObject.Create;
     Result.AddPair('ProcessId', GetCurrentProcessId.ToString);
     pProcessing := False;
     Memo1.Lines.Add('----- KEEP ALIVE ANSERED -----');
+    TWorkerWrapper.Trace('KEEP ALIVE ANSERED');
   end;
 end;
 
 function TForm2.SafeStopHandler(pMessage: TZapJSONMessage;
   var pProcessing: boolean): TJSONObject;
 begin
+  TWorkerWrapper.Trace('SAFE STOP RECIVED');
   pProcessing := False;
   Result := nil;
   TThread.Queue(nil, procedure

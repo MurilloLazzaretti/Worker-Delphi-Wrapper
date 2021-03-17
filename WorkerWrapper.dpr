@@ -20,7 +20,7 @@ end;
 
 begin
   ReportMemoryLeaksOnShutdown := True;
-  TWorkerWrapper.Start('localhost', 5679, QueueHandler);
+  //TWorkerWrapper.Start('localhost', 5679, QueueHandler);
   Readln;
   TWorkerWrapper.Stop;
 end.

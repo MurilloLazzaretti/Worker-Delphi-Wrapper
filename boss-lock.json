@@ -4,8 +4,8 @@
 	"installedModules": {
 		"https://github.com/murillolazzaretti/zapmq-delphi-wrapper": {
 			"name": "zapmq-delphi-wrapper",
-			"version": "v1.1.1",
-			"hash": "ed05ac5ee3823359294e4a6c45746556",
+			"version": "v1.2.0",
+			"hash": "260563a052f5c49b38e44dc5dcb5a444",
 			"artifacts": {},
 			"failed": false,
 			"changed": false

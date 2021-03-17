@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, WorkerWrapper.Core, ZapMQ.Message.JSON, JSON;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, WorkerWrapper.Core, ZapMQ.Message.JSON, JSON,
+  ZapMQ.Wrapper;
 
 type
   TForm2 = class(TForm)
@@ -18,6 +19,7 @@ type
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
+    FZapMQWrapper : TZapMQWrapper;
     function KeepAliveHandler(pMessage : TZapJSONMessage;
       var pProcessing : boolean) : TJSONObject;
     function SafeStopHandler(pMessage : TZapJSONMessage;
@@ -31,6 +33,8 @@ var
 
 implementation
 
+uses
+  Rest.Json;
 
 {$R *.dfm}
 
@@ -42,12 +46,15 @@ end;
 procedure TForm2.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   TWorkerWrapper.Stop;
+  FZapMQWrapper.SafeStop;
+  FZapMQWrapper.Free;
   Action := caFree;
 end;
 
 procedure TForm2.FormCreate(Sender: TObject);
 begin
   TWorkerWrapper.Start('localhost', 5679, KeepAliveHandler, SafeStopHandler);
+  FZapMQWrapper := TZapMQWrapper.Create('localhost', 5679);
   SimulateCrash := False;
   Label2.Caption := 'Process ID :' + GetCurrentProcessId.ToString;
 end;
@@ -70,6 +77,7 @@ begin
     pProcessing := False;
     Memo1.Lines.Add('----- KEEP ALIVE ANSERED -----');
     TWorkerWrapper.Trace('KEEP ALIVE ANSERED');
+    FZapMQWrapper.Log(otInformation, 'Form2.KeepAliveHandler', 'KeepAlive', 'Keep Alive answered');
   end;
 end;
 
